@@ -1,0 +1,74 @@
+---
+title: "Juvenile coral assemblage in Venezuela"
+author: "LMM, ZM"
+date: "August 19, 2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Packages
+
+```{r}
+library(tidyverse)
+```
+
+# 2. Data
+
+```{r}
+juve <- read_csv('data/reproduction.csv') %>% 
+  rename(total_density = `Density (ind/m2)`)
+```
+
+# 3. Anova: Total density
+
+```{r}
+juve2 <- juve %>% 
+  select(2, 6, 7, 8, 9) %>% 
+  mutate(total_density = log(total_density+1))
+```
+
+```{r}
+anova(lm(total_density~Locality+
+           Site%in%Locality+
+           Transects%in%Locality%in%Site+
+           Quadrats%in%Transects%in%Locality%in%Site, 
+         data = juve2))
+```
+
+# 4. Anova: Reproductive strategies
+## 4.1 Brooders
+
+```{r}
+brood <- juve %>% 
+  select(3, 6, 7, 8, 9) %>% 
+  mutate(Brooders = log(Brooders+1))
+```
+
+```{r}
+anova(lm(Brooders~Locality+
+           Site%in%Locality+
+           Transects%in%Locality%in%Site+
+           Quadrats%in%Transects%in%Locality%in%Site, 
+         data = brood))
+```
+
+## 4.2 Spawners
+
+```{r}
+spawn <- juve %>% 
+  select(4, 6, 7, 8, 9) %>% 
+  mutate(Spawners = log(Spawners+1))
+```
+
+```{r}
+anova(lm(Spawners~Locality+
+           Site%in%Locality+
+           Transects%in%Locality%in%Site+
+           Quadrats%in%Transects%in%Locality%in%Site, 
+         data = spawn))
+```
