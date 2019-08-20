@@ -15,6 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r}
 library(tidyverse)
+library(cowplot)
 ```
 
 # 2. Data
@@ -41,34 +42,68 @@ anova(lm(total_density~Locality+
 ```
 
 # 4. Anova: Reproductive strategies
-## 4.1 Brooders
 
 ```{r}
-brood <- juve %>% 
-  select(3, 6, 7, 8, 9) %>% 
-  mutate(Brooders = log(Brooders+1))
+strategies <- juve %>% 
+  select(3, 4, 6, 7, 8, 9) %>% 
+  gather(-c(Locality, Site, Transects, Quadrats), 
+         value = density, key = strategy) %>% 
+  mutate(density = log(density+1))
 ```
 
 ```{r}
-anova(lm(Brooders~Locality+
-           Site%in%Locality+
-           Transects%in%Locality%in%Site+
-           Quadrats%in%Transects%in%Locality%in%Site, 
-         data = brood))
+anova(lm(density~strategy +
+         strategy*Locality +
+         strategy*Site%in%Locality+
+         strategy*Transects%in%Site%in%Locality +
+         strategy*Quadrats%in%Transects%in%Site%in%Locality,
+         data = strategies))
 ```
 
-## 4.2 Spawners
-
-```{r}
-spawn <- juve %>% 
-  select(4, 6, 7, 8, 9) %>% 
-  mutate(Spawners = log(Spawners+1))
-```
+# 5. Plots
 
 ```{r}
-anova(lm(Spawners~Locality+
-           Site%in%Locality+
-           Transects%in%Locality%in%Site+
-           Quadrats%in%Transects%in%Locality%in%Site, 
-         data = spawn))
+if (!dir.exists('figures')){dir.create('figures')}
 ```
+
+## 5.1 Total density
+
+```{r}
+total_a <- juve %>%
+  ggplot(aes(x = Site, y = total_density, color = Locality)) +
+  geom_jitter(size = 2.5, alpha = .5) +
+  labs(y = expression(Density~(individuals/m^{2}))) +
+  theme(legend.position = 'top')
+
+total_b <- juve %>%
+  group_by(Site, Locality) %>%
+  summarise(avg=mean(total_density), std=sd(total_density)) %>% 
+  ggplot(aes(x = Site, y = avg, fill = Locality)) +
+  geom_col() +
+  geom_errorbar(aes(ymin = avg, ymax = avg+std)) +
+  labs(y = 'Mean density') +
+  theme(legend.position = 'none')
+  
+plot_grid(total_a + theme(axis.title.x = element_blank(),
+                          axis.text.x=element_blank()), 
+          total_b + theme(axis.text.x = element_text(angle = 90)), 
+          ncol = 1,
+          labels = c('A', 'B'))
+
+#ggsave('figures/fig01.svg')
+```
+
+## 5.2 Brooders vs spawners
+
+```{r}
+juve %>%
+  filter(Brooders != 0 | Spawners != 0) %>% 
+  ggplot(aes(x = Brooders, y = Spawners, color = Site)) +
+  geom_jitter(size = 2.5, alpha = .6) +
+  facet_grid(~Locality) +
+  theme(legend.position = 'top')
+
+#ggsave('figures/fig03.svg')
+```
+
+
