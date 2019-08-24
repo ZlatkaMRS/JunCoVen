@@ -16,6 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(cowplot)
+library(sjstats)
 ```
 
 # 2. Data
@@ -34,12 +35,18 @@ juve2 <- juve %>%
 ```
 
 ```{r}
-anova(lm(total_density~Locality+
+totald_anova <- anova(lm(total_density~Locality+
            Site%in%Locality+
            Transects%in%Locality%in%Site+
            Quadrats%in%Transects%in%Locality%in%Site, 
          data = juve2))
 ```
+
+```{r}
+omega_sq(totald_anova, partial = FALSE, ci.lvl = NULL, n = 1000,
+  method = c("dist", "quantile"))
+```
+
 
 # 4. Anova: Reproductive strategies
 
@@ -52,7 +59,7 @@ strategies <- juve %>%
 ```
 
 ```{r}
-anova(lm(density~strategy +
+strategy_anova <- anova(lm(density~strategy +
          strategy*Locality +
          strategy*Site%in%Locality+
          strategy*Transects%in%Site%in%Locality +
@@ -60,6 +67,10 @@ anova(lm(density~strategy +
          data = strategies))
 ```
 
+```{r}
+omega_sq(strategy_anova, partial = FALSE, ci.lvl = NULL, n = 1000,
+  method = c("dist", "quantile"))
+```
 # 5. Plots
 
 ```{r}
