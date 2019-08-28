@@ -79,9 +79,6 @@ if (!dir.exists('figures')){dir.create('figures')}
 
 ## 5.1 Total density
 
-field_mse$sites <- factor(field_mse$sites, 
-                           levels = field_mse$sites[order(field_mse$Locality)])
-
 ```{r}
 juve$Site <- factor(juve$Site,
                     levels = unique(juve$Site[order(juve$Locality)]))
