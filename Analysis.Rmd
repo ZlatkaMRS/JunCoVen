@@ -83,7 +83,14 @@ if (!dir.exists('figures')){dir.create('figures')}
 ## 5.1 Total density
 
 ```{r}
+juve$Site <- factor(juve$Site,
+                    levels = unique(juve$Site[order(juve$Locality)]))
+```
+
+
+```{r}
 total_a <- juve %>%
+  filter(total_density !=0) %>% 
   ggplot(aes(x = Site, y = total_density, color = Locality)) +
   geom_jitter(size = 2.5, alpha = .5) +
   labs(y = expression(Density~(individuals/m^{2}))) +
