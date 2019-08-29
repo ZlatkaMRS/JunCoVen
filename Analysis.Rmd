@@ -17,6 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(cowplot)
 library(sjstats)
+library(dplyr)
 ```
 
 # 2. Data
@@ -40,6 +41,7 @@ totald_anova <- anova(lm(total_density~Locality+
            Transects%in%Locality%in%Site+
            Quadrats%in%Transects%in%Locality%in%Site, 
          data = juve2))
+View(totald_anova)
 ```
 
 ```{r}
@@ -65,6 +67,7 @@ strategy_anova <- anova(lm(density~strategy +
          strategy*Transects%in%Site%in%Locality +
          strategy*Quadrats%in%Transects%in%Site%in%Locality,
          data = strategies))
+View(strategy_anova)
 ```
 
 ```{r}
@@ -114,7 +117,18 @@ juve %>%
   facet_grid(~Locality) +
   theme(legend.position = 'top')
 
-#ggsave('figures/fig03.svg')
+#ggsave('figures/fig03_1.svg')
+```
+
+```{r}
+juve %>%
+  filter(Brooders != 0 | Spawners != 0) %>% 
+  ggplot(aes(x = Spawners, y = Brooders, color = Site)) +
+  geom_jitter(size = 2.5, alpha = .6) +
+  facet_grid(~Locality) +
+  theme(legend.position = 'top')
+
+#ggsave('figures/fig03_2.svg')
 ```
 
 
