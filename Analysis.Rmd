@@ -14,10 +14,10 @@ knitr::opts_chunk$set(echo = TRUE)
 # 1. Packages
 
 ```{r}
+library(dplyr)
 library(tidyverse)
 library(cowplot)
 library(sjstats)
-library(dplyr)
 ```
 
 # 2. Data
@@ -74,6 +74,8 @@ View(strategy_anova)
 omega_sq(strategy_anova, partial = FALSE, ci.lvl = NULL, n = 1000,
   method = c("dist", "quantile"))
 ```
+
+
 # 5. Plots
 
 ```{r}
@@ -101,7 +103,7 @@ total_b <- juve %>%
   summarise(avg=mean(total_density), std=sd(total_density)) %>% 
   ggplot(aes(x = Site, y = avg, fill = Locality)) +
   geom_col() +
-  geom_errorbar(aes(ymin = avg, ymax = avg+std)) +
+  geom_errorbar(aes(ymin = avg, ymax = avg+std), width = 0.25) +
   labs(y = 'Mean density') +
   theme(legend.position = 'none')
   
